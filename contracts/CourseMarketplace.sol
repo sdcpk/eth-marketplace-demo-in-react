@@ -46,7 +46,7 @@ contract CourseMarketplace {
         _;
     }
 
-    function purchaseCoursre(
+    function purchaseCourse(
         bytes16 courseId,
         bytes32 proof //0x0000000000000000000000000000313000000000000000000000000000003130
     ) 
