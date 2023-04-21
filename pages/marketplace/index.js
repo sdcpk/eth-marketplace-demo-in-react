@@ -31,10 +31,11 @@ export default function Marketplace({courses}) {
     const value = web3.utils.toWei(String(order.price))
 
     try {
-      await contract.methods.purchaseCourse(
+      const result = await contract.methods.purchaseCourse(
         hexCourseId,
         proof
       ).send({from: account.data, value})
+      console.log(result)
     } catch {
       console.log("Purchase course: Operation has failed")
     }
