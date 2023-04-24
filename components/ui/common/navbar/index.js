@@ -4,7 +4,7 @@
 
 import { useWeb3 } from "@components/providers"
 import Link from "next/link"
-import { Button } from "@components/ui/common"
+import { ActiveLink, Button } from "@components/ui/common"
 import { useAccount } from "@components/hooks/web3"
 import { useRouter } from "next/router"
 
@@ -17,26 +17,34 @@ export default function Navbar() {
     <section>
       <div className="relative pt-6 px-4 sm:px-6 lg:px-8">
         <nav className="relative" aria-label="Global">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col xs:flex-row justify-between items-center">
             <div>
-              <Link href="/"
-                  className="font-medium mr-8 text-gray-500 hover:text-gray-900">
-                  Home
-              </Link>
-              <Link href="/marketplace"
+              <ActiveLink href="/">
+                <a  
+                    className="font-medium mr-8 text-gray-500 hover:text-gray-900">
+                    Home
+                </a>
+              </ActiveLink>
+              <ActiveLink href="/marketplace">
+                <a
                   className="font-medium mr-8 text-gray-500 hover:text-gray-900">
                   Marketplace
-              </Link>
-              <Link href="/"
+                </a>
+              </ActiveLink>
+              <ActiveLink href="/blogs">
+                <a
                   className="font-medium mr-8 text-gray-500 hover:text-gray-900">
                   Blogs
-              </Link>
+                </a>
+              </ActiveLink>
             </div>
-            <div>
-              <Link href="/"
-                  className="font-medium mr-8 text-gray-500 hover:text-gray-900">
+            <div className="text-center">
+              <ActiveLink href="/wishlist">
+                <a
+                  className="font-medium sm:mr-8 mr-1 text-gray-500 hover:text-gray-900">
                   Wishlist
-              </Link>
+                </a>
+              </ActiveLink>
               { isLoading ?
                 <Button
                   disabled={true}

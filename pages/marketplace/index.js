@@ -8,16 +8,41 @@ import { Button, Modal } from "@components/ui/common"
 import { OrderModal } from "@components/ui/order"
 import { useState } from "react"
 import { MarketHeader } from "@components/ui/marketplace"
-
+import { useWeb3 } from "@components/providers"
 
 export default function Marketplace({courses}) {
+  const { web3, contract } = useWeb3()
   const [selectedCourse, setSelectedCourse] = useState(null)
-  const { canPurchaseCourse } = useWalletInfo()
+  const { canPurchaseCourse, account } = useWalletInfo()
+  const purchaseCourse = async order => {
+    const hexCourseId = web3.utils.utf8ToHex(selectedCourse.id)
+    // emailhash + coursehash
+    const orderHash = web3.utils.soliditySha3(
+      { type: "bytes16", value: hexCourseId },
+      { type: "address", value: account.data }
+    )
+    
+    const emailHash = web3.utils.sha3(order.email)
+    const proof = web3.utils.soliditySha3(
+      { type: "bytes32", value: emailHash },
+      { type: "bytes32", value: orderHash }
+    )
+
+    const value = web3.utils.toWei(String(order.price))
+
+    try {
+      const result = await contract.methods.purchaseCourse(
+        hexCourseId,
+        proof
+      ).send({from: account.data, value})
+      console.log(result)
+    } catch {
+      console.log("Purchase course: Operation has failed")
+    }
+  }
   return (
     <>
-      <div className="py-4">
-        <MarketHeader />
-      </div>   
+      <MarketHeader />
       <CourseList
         courses={courses}
       >
@@ -42,6 +67,7 @@ export default function Marketplace({courses}) {
       { selectedCourse && 
         <OrderModal 
           course={selectedCourse}
+          onSubmit = {purchaseCourse}
           onClose={() => setSelectedCourse(null)}
         />
       }
