@@ -1,9 +1,6 @@
 
 
-
-
 import { useWeb3 } from "@components/providers"
-import Link from "next/link"
 import { ActiveLink, Button } from "@components/ui/common"
 import { useAccount } from "@components/hooks/web3"
 import { useRouter } from "next/router"
