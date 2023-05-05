@@ -15,13 +15,16 @@ export default function Marketplace({courses}) {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const { canPurchaseCourse, account } = useWalletInfo()
   const purchaseCourse = async order => {
+
     const hexCourseId = web3.utils.utf8ToHex(selectedCourse.id)
-    // emailhash + coursehash
+    //0x31343130343734000000000000000000
+    //0x9c5043ad454Ae025e4864803f9b7e7DA4601e6E6
+    
     const orderHash = web3.utils.soliditySha3(
       { type: "bytes16", value: hexCourseId },
       { type: "address", value: account.data }
     )
-    
+    //945f72adc7ef20ab8244b6ee89eb2437413dd837a4ab237c1016c6839a23346b
     const emailHash = web3.utils.sha3(order.email)
     const proof = web3.utils.soliditySha3(
       { type: "bytes32", value: emailHash },

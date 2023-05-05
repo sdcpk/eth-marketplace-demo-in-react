@@ -33,8 +33,17 @@ contract CourseMarketplace {
         setContractOwner(msg.sender);
     }
 
+    ///course has invalid state
+    error InvalidState();
+
+    ///course is not created
+    error CourseisNotCreated();
+
     ///course has already an Owner 
     error CourseHasOwner();
+
+    ///Sender is not the course owner
+    error SenderIsNotCourseOwner();
 
     ///only owner has an access
     error OnlyOwner();
@@ -47,7 +56,7 @@ contract CourseMarketplace {
     }
 
     function purchaseCourse(
-        bytes16 courseId,
+        bytes16 courseId, //0x00000000000000000000000000003130
         bytes32 proof //0x0000000000000000000000000000313000000000000000000000000000003130
     ) 
         external 
@@ -70,6 +79,63 @@ contract CourseMarketplace {
         });
     }
 
+    function repurchaseCourse(bytes32 courseHash) 
+        external 
+        payable
+    {
+        if (!isCourseCreated(courseHash)) {
+            revert CourseisNotCreated();
+        }
+        if (!hasCourseOwnership(courseHash)) {
+            revert SenderIsNotCourseOwner();
+        }
+
+        Course storage course = ownedCourses[courseHash];
+
+        if(course.state != State.Deactivated) {
+            revert InvalidState();
+        }
+
+        course.state = State.Purchased;
+        course.price = msg.value;
+    }
+
+    function activateCourse(bytes32 courseHash)
+        external
+        onlyOwner
+    {
+        if (!isCourseCreated(courseHash)) {
+            revert CourseisNotCreated();
+        }
+
+        Course storage course = ownedCourses[courseHash];
+
+        if (course.state != State.Purchased) {
+            revert InvalidState();
+        }
+        course.state = State.Activated;
+    }
+    function deactivateCourse(bytes32 courseHash)
+        external
+        onlyOwner
+    {
+        if (!isCourseCreated(courseHash)) {
+            revert CourseisNotCreated();
+        }
+
+        Course storage course = ownedCourses[courseHash];
+
+        if (course.state != State.Purchased) {
+            revert InvalidState();
+        }
+
+        (bool success, ) = course.owner.call{value: course.price}("");
+        require(success, "Transfer failed!");
+
+        course.state = State.Deactivated;
+        course.price=0;
+
+    }
     function transferOwnership(address newOwner)
         external 
         onlyOwner
@@ -111,6 +177,14 @@ contract CourseMarketplace {
 
     function setContractOwner(address newOwner) private {
         owner = payable(newOwner);
+    }
+
+    function isCourseCreated(bytes32 courseHash) 
+    private
+    view
+    returns (bool)
+    {
+        return ownedCourses[courseHash].owner != 0x0000000000000000000000000000000000000000;
     }
 
     function hasCourseOwnership(bytes32 courseHash) 

@@ -9,7 +9,7 @@ export const handler = (web3, contract) => (courses, account) => {
             const ownedCourses = []
             for (let i=0; i < courses.length; i++) {
                 const course = courses[i]
-                
+
                 if (!course.id) {
                     continue
                 }
