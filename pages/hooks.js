@@ -10,7 +10,6 @@ const useCounter = () => {
       setCount( c => c+1)
     }, 1000);
   }, [])
-  console.log
   return count
 }
 

@@ -1,4 +1,6 @@
-import { Modal } from "@components/ui/common";
+  import { useAccount, useOwnedCourse } from "@components/hooks/web3";
+import { useWeb3 } from "@components/providers";
+import { Message, Modal } from "@components/ui/common";
 import {
   CourseHero,
   Curriculum,
@@ -9,10 +11,22 @@ import { getAllCourses } from "@content/courses/fetcher";
 
 export default function Course({course}) {
 
+  const { isLoading } = useWeb3()
+  const { account } = useAccount()
+  const { ownedCourse } = useOwnedCourse(course, account.data)
+  
+  const courseState = ownedCourse.data?.state
+  //const courseState = "deactivated"
+  const isLocked = 
+    !courseState ||
+    courseState === "purchased" || 
+    courseState === "deactivated"
+
   return (
     <>
       <div className="py-4">
         <CourseHero
+          hasOwner={!!ownedCourse.data}
           title={course.title}
           description={course.description}
           image={course.coverImage}
@@ -21,8 +35,34 @@ export default function Course({course}) {
       <Keypoints
         points={course.wsl}
       />
+      { courseState && 
+        <div className="max-w-5xl mx-auto">
+        { courseState === "purchased" && 
+            <Message type="warning">
+              Course is purchased and waiting for activation. Process can take upto 24 hours.
+              <i className="block font-normal">In case of any questions, please contact ...</i>
+            </Message>
+          
+        }
+        { courseState === "activated" && 
+            <Message type="success">
+              Wish you happy watching of this course.
+            </Message>
+          
+        }
+        { courseState === "deactivated" && 
+            <Message type="danger">
+              Course has been decativated due to the incorrect purchase data. The functionality to watch had been temporarily disabled.
+              <i className="block font-normal">In case of any questions, please contact ...</i>
+            </Message>
+          
+        }
+      </div>
+      }
       <Curriculum
-        locked={true}
+        isLoading={isLoading}
+        locked={isLocked}
+        courseState={courseState}
       />
       <Modal />
     </>
