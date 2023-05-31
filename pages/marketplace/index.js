@@ -145,7 +145,10 @@ export default function Marketplace({courses}) {
                     variant="white"
                     disabled={true}
                     size="sm">
-                    Loading
+                    { hasConnectedWallet ? 
+                      "Loading state..." : 
+                      "Connect"
+                    }
                   </Button>
                 )
               }
